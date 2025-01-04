@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Carousel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f4f4f4;
+        }
+
+        .carousel-container {
+            width: 80%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-item {
+            flex: 0 0 33.33%;
+            opacity: 0.6;
+            text-align: center;
+            transition: opacity 0.5s;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+        }
+
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 10;
+            padding: 10px;
+            border-radius: 50%;
+        }
+
+        .carousel-arrow.left {
+            left: 10px;
+        }
+
+        .carousel-arrow.right {
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel-container">
+        <button class="carousel-arrow left" onclick="moveLeft()">&#10094;</button>
+        <div class="carousel" id="carousel">
+            <!-- Dynamicky načtené produkty -->
+        </div>
+        <button class="carousel-arrow right" onclick="moveRight()">&#10095;</button>
+    </div>
+
+    <script>
+        const carousel = document.getElementById('carousel');
+        let currentIndex = 0;
+
+        // Data produktů
+        const products = [
+            { name: 'Product 1', price: '$10.99', image: 'product1.jpg', url: 'product1.html' },
+            { name: 'Product 2', price: '$15.49', image: 'product2.jpg', url: 'product2.html' },
+            { name: 'Product 3', price: '$9.99', image: 'product3.jpg', url: 'product3.html' },
+            { name: 'Product 4', price: '$20.00', image: 'product4.jpg', url: 'product4.html' }
+        ];
+
+        // Vytvoření carouselu z dat
+        function loadProducts() {
+            products.forEach((product) => {
+                const productDiv = `
+                    <div class="carousel-item">
+                        <a href="${product.url}" style="text-decoration: none; color: black;">
+                            <img src="${product.image}" alt="${product.name}">
+                            <h3>${product.name}</h3>
+                            <p>${product.price}</p>
+                        </a>
+                    </div>
+                `;
+                carousel.innerHTML += productDiv;
+            });
+        }
+
+        function updateCarousel() {
+            const offset = -currentIndex * (carousel.clientWidth / 3);
+            carousel.style.transform = `translateX(${offset}px)`;
+        }
+
+        function moveLeft() {
+            currentIndex = (currentIndex - 1 + products.length) % products.length;
+            updateCarousel();
+        }
+
+        function moveRight() {
+            currentIndex = (currentIndex + 1) % products.length;
+            updateCarousel();
+        }
+
+        // Načtení produktů a spuštění carouselu
+        loadProducts();
+        updateCarousel();
+
+        // Automatický posun
+        setInterval(moveRight, 2500);
+    </script>
+</body>
+</html>
