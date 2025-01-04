@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Carousel</title>
+    <title>Products In Stock</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,8 +35,9 @@
         }
 
         .carousel-item img {
-            width: 100%;
+            width: 80%;
             border-radius: 10px;
+            max-height: 200px;
         }
 
         .carousel-item.active {
@@ -70,60 +71,64 @@
     <div class="carousel-container">
         <button class="carousel-arrow left" onclick="moveLeft()">&#10094;</button>
         <div class="carousel" id="carousel">
-            <!-- Dynamicky načtené produkty -->
+            <!-- Ručně zadané produkty skladem -->
+            <div class="carousel-item">
+                <a href="https://www.90plustickets.com/product1" style="text-decoration: none; color: black;">
+                    <img src="https://www.90plustickets.com/images/product1.jpg" alt="Product 1">
+                    <h3>Match 1</h3>
+                    <p>$120.00</p>
+                </a>
+            </div>
+            <div class="carousel-item">
+                <a href="https://www.90plustickets.com/product2" style="text-decoration: none; color: black;">
+                    <img src="https://www.90plustickets.com/images/product2.jpg" alt="Product 2">
+                    <h3>Match 2</h3>
+                    <p>$150.00</p>
+                </a>
+            </div>
+            <div class="carousel-item">
+                <a href="https://www.90plustickets.com/product3" style="text-decoration: none; color: black;">
+                    <img src="https://www.90plustickets.com/images/product3.jpg" alt="Product 3">
+                    <h3>Match 3</h3>
+                    <p>$100.00</p>
+                </a>
+            </div>
         </div>
         <button class="carousel-arrow right" onclick="moveRight()">&#10095;</button>
     </div>
 
     <script>
         const carousel = document.getElementById('carousel');
+        const items = carousel.children;
+        const totalItems = items.length;
         let currentIndex = 0;
-
-        // Data produktů
-        const products = [
-            { name: 'Product 1', price: '$10.99', image: 'product1.jpg', url: 'product1.html' },
-            { name: 'Product 2', price: '$15.49', image: 'product2.jpg', url: 'product2.html' },
-            { name: 'Product 3', price: '$9.99', image: 'product3.jpg', url: 'product3.html' },
-            { name: 'Product 4', price: '$20.00', image: 'product4.jpg', url: 'product4.html' }
-        ];
-
-        // Vytvoření carouselu z dat
-        function loadProducts() {
-            products.forEach((product) => {
-                const productDiv = `
-                    <div class="carousel-item">
-                        <a href="${product.url}" style="text-decoration: none; color: black;">
-                            <img src="${product.image}" alt="${product.name}">
-                            <h3>${product.name}</h3>
-                            <p>${product.price}</p>
-                        </a>
-                    </div>
-                `;
-                carousel.innerHTML += productDiv;
-            });
-        }
 
         function updateCarousel() {
             const offset = -currentIndex * (carousel.clientWidth / 3);
             carousel.style.transform = `translateX(${offset}px)`;
+
+            // Nastavení opacity
+            Array.from(items).forEach((item, index) => {
+                item.style.opacity = (index === currentIndex) ? '1' : '0.6';
+            });
         }
 
         function moveLeft() {
-            currentIndex = (currentIndex - 1 + products.length) % products.length;
+            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
             updateCarousel();
         }
 
         function moveRight() {
-            currentIndex = (currentIndex + 1) % products.length;
+            currentIndex = (currentIndex + 1) % totalItems;
             updateCarousel();
         }
 
-        // Načtení produktů a spuštění carouselu
-        loadProducts();
-        updateCarousel();
+        // Automatické posouvání
+        setInterval(() => {
+            moveRight();
+        }, 2500); // 2,5 sekundy
 
-        // Automatický posun
-        setInterval(moveRight, 2500);
+        updateCarousel();
     </script>
 </body>
 </html>
