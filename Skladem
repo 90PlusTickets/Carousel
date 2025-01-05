@@ -1,134 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products In Stock</title>
+    <title>Carousel z CSV</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #f4f4f4;
+            font-family: Arial, sans-serif;
         }
-
         .carousel-container {
-            width: 80%;
-            overflow: hidden;
             position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            overflow: hidden;
         }
-
         .carousel {
             display: flex;
             transition: transform 0.5s ease-in-out;
         }
-
         .carousel-item {
             flex: 0 0 33.33%;
-            opacity: 0.6;
             text-align: center;
-            transition: opacity 0.5s;
+            position: relative;
         }
-
         .carousel-item img {
-            width: 80%;
+            width: 100%;
             border-radius: 10px;
-            max-height: 200px;
         }
-
-        .carousel-item.active {
-            opacity: 1;
-        }
-
-        .carousel-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            z-index: 10;
-            padding: 10px;
-            border-radius: 50%;
-        }
-
-        .carousel-arrow.left {
-            left: 10px;
-        }
-
-        .carousel-arrow.right {
-            right: 10px;
+        .carousel-item .name, .carousel-item .price {
+            margin: 5px 0;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
     <div class="carousel-container">
-        <button class="carousel-arrow left" onclick="moveLeft()">&#10094;</button>
         <div class="carousel" id="carousel">
-            <!-- Ručně zadané produkty skladem -->
-            <div class="carousel-item">
-                <a href="https://www.90plustickets.com/product1" style="text-decoration: none; color: black;">
-                    <img src="https://www.90plustickets.com/images/product1.jpg" alt="Product 1">
-                    <h3>Match 1</h3>
-                    <p>$120.00</p>
-                </a>
-            </div>
-            <div class="carousel-item">
-                <a href="https://www.90plustickets.com/product2" style="text-decoration: none; color: black;">
-                    <img src="https://www.90plustickets.com/images/product2.jpg" alt="Product 2">
-                    <h3>Match 2</h3>
-                    <p>$150.00</p>
-                </a>
-            </div>
-            <div class="carousel-item">
-                <a href="https://www.90plustickets.com/product3" style="text-decoration: none; color: black;">
-                    <img src="https://www.90plustickets.com/images/product3.jpg" alt="Product 3">
-                    <h3>Match 3</h3>
-                    <p>$100.00</p>
-                </a>
-            </div>
+            <!-- Dynamicky načtené produkty -->
         </div>
-        <button class="carousel-arrow right" onclick="moveRight()">&#10095;</button>
     </div>
 
     <script>
-        const carousel = document.getElementById('carousel');
-        const items = carousel.children;
-        const totalItems = items.length;
-        let currentIndex = 0;
+        const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZYOrdYoKkHtjhCJ-T-APC2uoRFpe4afpPZ9AzB8fC_dNmdPfGZcCfwrdLBvHfc_R-QUt75MVEc-sG/pubhtml"
 
-        function updateCarousel() {
-            const offset = -currentIndex * (carousel.clientWidth / 3);
-            carousel.style.transform = `translateX(${offset}px)`;
+        async function loadProducts() {
+            const response = await fetch(csvURL);
+            const csvText = await response.text();
+            const rows = csvText.split("\n").map(row => row.split(","));
+            const products = rows.slice(1).map(row => ({
+                name: row[0],
+                price: row[1],
+                image: row[2],
+                url: row[3],
+            }));
 
-            // Nastavení opacity
-            Array.from(items).forEach((item, index) => {
-                item.style.opacity = (index === currentIndex) ? '1' : '0.6';
+            renderCarousel(products);
+        }
+
+        function renderCarousel(products) {
+            const carouselElement = document.getElementById("carousel");
+            products.forEach(product => {
+                const item = document.createElement("div");
+                item.classList.add("carousel-item");
+                item.innerHTML = `
+                    <a href="${product.url}" target="_blank">
+                        <img src="${product.image}" alt="${product.name}">
+                    </a>
+                    <div class="name">${product.name}</div>
+                    <div class="price">${product.price}</div>
+                `;
+                carouselElement.appendChild(item);
             });
+
+            // Automatický pohyb carouselu
+            let currentIndex = 0;
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % products.length;
+                carouselElement.style.transform = `translateX(-${currentIndex * 33.33}%)`;
+            }, 3000);
         }
 
-        function moveLeft() {
-            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
-            updateCarousel();
-        }
-
-        function moveRight() {
-            currentIndex = (currentIndex + 1) % totalItems;
-            updateCarousel();
-        }
-
-        // Automatické posouvání
-        setInterval(() => {
-            moveRight();
-        }, 2500); // 2,5 sekundy
-
-        updateCarousel();
+        loadProducts();
     </script>
 </body>
 </html>
